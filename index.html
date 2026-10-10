@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Football Performance Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">⚽ FOOTY<span>TRACK</span></div>
+
+    <nav>
+      <a class="nav-link active" href="#dashboard">▦ Dashboard</a>
+      <a class="nav-link" href="#log-session">＋ Log performance</a>
+      <a class="nav-link" href="#activity">◷ Recent activity</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="status-dot"></span> Your personal football journey
+    </div>
+  </aside>
+
+  <main class="main-content" id="dashboard">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">PLAYER WORKSPACE</p>
+        <h1>Performance Dashboard</h1>
+        <p class="subtitle">Every session counts. Track your progress.</p>
+      </div>
+      <a class="primary-button" href="#log-session">+ Log session</a>
+    </header>
+
+    <section class="welcome-card">
+      <div>
+        <p class="eyebrow">YOUR NEXT LEVEL STARTS HERE</p>
+        <h2>Train with purpose.<br>Play with confidence.</h2>
+        <p>Record your work, review your progress, and keep improving.</p>
+      </div>
+      <div class="football-icon" aria-hidden="true">⚽</div>
+    </section>
+
+    <section class="stats-grid" aria-label="Performance statistics">
+      <article class="stat-card">
+        <span class="stat-icon">🏟️</span>
+        <p>Matches played</p>
+        <h2 id="matches-count">0</h2>
+        <span class="stat-note">Recorded matches</span>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-icon">⚽</span>
+        <p>Goals scored</p>
+        <h2 id="goals-count">0</h2>
+        <span class="stat-note">Total recorded goals</span>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-icon">🎯</span>
+        <p>Assists</p>
+        <h2 id="assists-count">0</h2>
+        <span class="stat-note">Total recorded assists</span>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-icon">⏱️</span>
+        <p>Training hours</p>
+        <h2 id="training-hours">0</h2>
+        <span class="stat-note">Time spent training</span>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel" id="log-session">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ADD YOUR PROGRESS</p>
+            <h2>Log a session</h2>
+          </div>
+          <span class="heading-icon">＋</span>
+        </div>
+
+        <form id="session-form">
+          <div class="form-grid">
+            <label>
+              Session type
+              <select id="session-type" required>
+                <option value="Training">Training</option>
+                <option value="Match">Match</option>
+              </select>
+            </label>
+
+            <label>
+              Date
+              <input type="date" id="session-date" required>
+            </label>
+
+            <label>
+              Duration (minutes)
+              <input type="number" id="duration" min="1" max="600"
+                placeholder="e.g. 90" required>
+            </label>
+
+            <label>
+              Fitness rating (1–10)
+              <input type="number" id="fitness" min="1" max="10"
+                placeholder="e.g. 8" required>
+            </label>
+
+            <label>
+              Goals
+              <input type="number" id="goals" min="0" max="99"
+                value="0" required>
+            </label>
+
+            <label>
+              Assists
+              <input type="number" id="assists" min="0" max="99"
+                value="0" required>
+            </label>
+          </div>
+
+          <label class="notes-label">
+            Session notes
+            <textarea id="notes" maxlength="500" rows="3"
+              placeholder="What went well? What should you improve?"></textarea>
+          </label>
+
+          <button type="submit" class="primary-button submit-button">
+            Save session
+          </button>
+          <p id="form-message" class="form-message" role="status"></p>
+        </form>
+      </article>
+
+      <article class="panel" id="activity">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">YOUR JOURNEY</p>
+            <h2>Recent activity</h2>
+          </div>
+          <span class="heading-icon">◷</span>
+        </div>
+
+        <div id="activity-list" class="activity-list">
+          <div class="empty-state">
+            <span>⚽</span>
+            <h3>Your story starts here</h3>
+            <p>Save your first training session or match to see it here.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      <p>FOOTYTRACK · Built to help you improve, one session at a time.</p>
+    </footer>
+  </main>
+</body>
+</html>
