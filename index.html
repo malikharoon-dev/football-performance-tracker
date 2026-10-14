@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Football Performance Tracker</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<script src="script.js" defer></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -70,7 +71,41 @@
         <span class="stat-note">Time spent training</span>
       </article>
     </section>
+<section class="analytics-section" id="analytics">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">YOUR PERFORMANCE DATA</p>
+      <h2>Performance Analytics</h2>
+    </div>
+    <span class="heading-icon">↗</span>
+  </div>
 
+  <div class="charts-grid">
+    <article class="panel chart-panel">
+      <h3>Goals & Assists</h3>
+      <p class="chart-description">Your 10 most recent recorded matches</p>
+      <div class="chart-container">
+        <canvas id="goals-chart" aria-label="Goals and assists per match"></canvas>
+      </div>
+    </article>
+
+    <article class="panel chart-panel">
+      <h3>Training Duration</h3>
+      <p class="chart-description">Minutes spent in your recent training sessions</p>
+      <div class="chart-container">
+        <canvas id="training-chart" aria-label="Training duration per session"></canvas>
+      </div>
+    </article>
+
+    <article class="panel chart-panel">
+      <h3>Fitness Trend</h3>
+      <p class="chart-description">Your self-reported fitness rating out of 10</p>
+      <div class="chart-container">
+        <canvas id="fitness-chart" aria-label="Fitness rating over time"></canvas>
+      </div>
+    </article>
+  </div>
+</section>
     <section class="content-grid">
       <article class="panel" id="log-session">
         <div class="section-heading">

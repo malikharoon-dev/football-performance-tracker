@@ -1,3 +1,4 @@
+
 const form = document.getElementById("session-form");
 const activityList = document.getElementById("activity-list");
 const formMessage = document.getElementById("form-message");
@@ -5,6 +6,12 @@ const formMessage = document.getElementById("form-message");
 const STORAGE_KEY = "footyTrackSessions";
 
 let sessions = loadSessions();
+
+const charts = {
+  goals: null,
+  training: null,
+  fitness: null
+};
 
 function loadSessions() {
   try {
@@ -22,7 +29,7 @@ function saveSessions() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
     return true;
   } catch (error) {
-    console.error("Could not save sessions:", error);
+    console.error("Could not save saved sessions:", error);
     formMessage.textContent =
       "Could not save data. Check your browser storage settings.";
     return false;
@@ -39,6 +46,16 @@ function formatDate(dateString) {
   });
 }
 
+function getChronologicalSessions(type) {
+  return sessions
+    .filter(session => !type || session.type === type)
+    .slice()
+    .sort((a, b) => {
+      const dateDifference = a.date.localeCompare(b.date);
+      return dateDifference || a.createdAt - b.createdAt;
+    });
+}
+
 function updateDashboard() {
   const matches = sessions.filter(
     session => session.type === "Match"
@@ -49,15 +66,15 @@ function updateDashboard() {
   );
 
   const goals = matches.reduce(
-    (total, session) => total + session.goals, 0
+    (total, session) => total + Number(session.goals || 0), 0
   );
 
   const assists = matches.reduce(
-    (total, session) => total + session.assists, 0
+    (total, session) => total + Number(session.assists || 0), 0
   );
 
   const trainingMinutes = training.reduce(
-    (total, session) => total + session.duration, 0
+    (total, session) => total + Number(session.duration || 0), 0
   );
 
   document.getElementById("matches-count").textContent =
@@ -71,6 +88,7 @@ function updateDashboard() {
     (trainingMinutes / 60).toFixed(1);
 
   renderActivity();
+  renderCharts();
 }
 
 function renderActivity() {
@@ -124,6 +142,158 @@ function escapeHTML(value) {
   })[character]);
 }
 
+function createChart(canvasId, config) {
+  const canvas = document.getElementById(canvasId);
+
+  if (!canvas || typeof Chart === "undefined") {
+    return null;
+  }
+
+  return new Chart(canvas, config);
+}
+
+function renderCharts() {
+  // The dashboard still works if the chart library fails to load.
+  if (typeof Chart === "undefined") {
+    console.warn("Chart.js has not loaded. Check your internet connection.");
+    return;
+  }
+
+  // Destroy old charts before rebuilding them.
+  Object.keys(charts).forEach(key => {
+    if (charts[key]) {
+      charts[key].destroy();
+      charts[key] = null;
+    }
+  });
+
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: "#cbd5e1",
+          usePointStyle: true,
+          padding: 18
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "#94a3b8",
+          maxRotation: 35,
+          minRotation: 0
+        },
+        grid: {
+          color: "rgba(148, 163, 184, 0.10)"
+        }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: "#94a3b8",
+          precision: 0
+        },
+        grid: {
+          color: "rgba(148, 163, 184, 0.12)"
+        }
+      }
+    }
+  };
+
+  // Chart 1: goals and assists in recent matches.
+  const recentMatches = getChronologicalSessions("Match").slice(-10);
+
+  charts.goals = createChart("goals-chart", {
+    type: "bar",
+    data: {
+      labels: recentMatches.map(session => formatDate(session.date)),
+      datasets: [
+        {
+          label: "Goals",
+          data: recentMatches.map(session => Number(session.goals || 0)),
+          backgroundColor: "#22c55e",
+          borderRadius: 5
+        },
+        {
+          label: "Assists",
+          data: recentMatches.map(session => Number(session.assists || 0)),
+          backgroundColor: "#38bdf8",
+          borderRadius: 5
+        }
+      ]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        ...commonOptions.scales,
+        y: {
+          ...commonOptions.scales.y,
+          suggestedMax: 1
+        }
+      }
+    }
+  });
+
+  // Chart 2: duration of recent training sessions.
+  const recentTraining = getChronologicalSessions("Training").slice(-10);
+
+  charts.training = createChart("training-chart", {
+    type: "line",
+    data: {
+      labels: recentTraining.map(session => formatDate(session.date)),
+      datasets: [{
+        label: "Minutes trained",
+        data: recentTraining.map(session => Number(session.duration || 0)),
+        borderColor: "#a78bfa",
+        backgroundColor: "rgba(167, 139, 250, 0.15)",
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: "#a78bfa"
+      }]
+    },
+    options: commonOptions
+  });
+
+  // Chart 3: fitness ratings across recent sessions.
+  const recentFitness = getChronologicalSessions().slice(-10);
+
+  charts.fitness = createChart("fitness-chart", {
+    type: "line",
+    data: {
+      labels: recentFitness.map(session => formatDate(session.date)),
+      datasets: [{
+        label: "Fitness rating / 10",
+        data: recentFitness.map(session => Number(session.fitness || 0)),
+        borderColor: "#fb923c",
+        backgroundColor: "rgba(251, 146, 60, 0.15)",
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointBackgroundColor: "#fb923c"
+      }]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        ...commonOptions.scales,
+        y: {
+          ...commonOptions.scales.y,
+          min: 0,
+          max: 10,
+          ticks: {
+            ...commonOptions.scales.y.ticks,
+            stepSize: 2
+          }
+        }
+      }
+    }
+  });
+}
+
 function getLocalDate() {
   const now = new Date();
   const timezoneOffset = now.getTimezoneOffset() * 60000;
@@ -153,10 +323,17 @@ form.addEventListener("submit", function (event) {
   if (
     !session.date ||
     session.duration < 1 ||
+    session.duration > 600 ||
+    !Number.isFinite(session.duration) ||
     session.fitness < 1 ||
     session.fitness > 10 ||
+    !Number.isFinite(session.fitness) ||
     session.goals < 0 ||
-    session.assists < 0
+    session.goals > 99 ||
+    !Number.isFinite(session.goals) ||
+    session.assists < 0 ||
+    session.assists > 99 ||
+    !Number.isFinite(session.assists)
   ) {
     formMessage.textContent = "Please check your entries and try again.";
     return;
